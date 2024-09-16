@@ -88,3 +88,53 @@ DEFAULT FOR TYPE agtype USING gin AS
   FUNCTION 6 ag_catalog.gin_triconsistent_agtype(internal, int2, agtype, int4,
                                                  internal, internal, internal),
 STORAGE text;
+
+-- this function went from variadic "any" to just "any" type
+CREATE OR REPLACE FUNCTION ag_catalog.age_tostring("any")
+    RETURNS agtype
+    LANGUAGE c
+    IMMUTABLE
+RETURNS NULL ON NULL INPUT
+PARALLEL SAFE
+AS 'MODULE_PATHNAME';
+
+-- this is a new function for graph statistics
+CREATE FUNCTION ag_catalog.age_graph_stats(agtype)
+    RETURNS agtype
+    LANGUAGE c
+    STABLE
+PARALLEL SAFE
+AS 'MODULE_PATHNAME';
+
+CREATE FUNCTION ag_catalog.graph_exists(graph_name name)
+    RETURNS agtype
+    LANGUAGE c
+    AS 'MODULE_PATHNAME', 'age_graph_exists';
+
+CREATE FUNCTION ag_catalog.age_is_valid_label_name(agtype)
+    RETURNS boolean
+    LANGUAGE c
+    IMMUTABLE
+PARALLEL SAFE
+AS 'MODULE_PATHNAME';
+
+CREATE OR REPLACE FUNCTION ag_catalog.create_vlabel(graph_name cstring, label_name cstring)
+    RETURNS void
+    LANGUAGE c
+    AS 'MODULE_PATHNAME';
+
+CREATE OR REPLACE FUNCTION ag_catalog.create_elabel(graph_name cstring, label_name cstring)
+    RETURNS void
+    LANGUAGE c
+    AS 'MODULE_PATHNAME';
+
+CREATE FUNCTION ag_catalog.agtype_to_json(agtype)
+    RETURNS json
+    LANGUAGE c
+    IMMUTABLE
+RETURNS NULL ON NULL INPUT
+PARALLEL SAFE
+AS 'MODULE_PATHNAME';
+
+CREATE CAST (agtype AS json)
+    WITH FUNCTION ag_catalog.agtype_to_json(agtype);

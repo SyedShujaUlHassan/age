@@ -90,7 +90,7 @@ void insert_label(const char *label_name, Oid graph_oid, int32 label_id,
     table_close(ag_label, RowExclusiveLock);
 }
 
-// DELETE FROM ag_catalog.ag_label WHERE relation = relation
+/* DELETE FROM ag_catalog.ag_label WHERE relation = relation */
 void delete_label(Oid relation)
 {
     ScanKeyData scan_keys[1];
@@ -159,6 +159,11 @@ char get_label_kind(const char *label_name, Oid label_graph)
     {
         return INVALID_LABEL_ID;
     }
+}
+
+char *get_label_seq_relation_name(const char *label_name)
+{
+    return psprintf("%s_id_seq", label_name);
 }
 
 PG_FUNCTION_INFO_V1(_label_name);
@@ -277,13 +282,13 @@ List *get_all_edge_labels_per_graph(EState *estate, Oid graph_oid)
     TupleTableSlot *slot;
     ResultRelInfo *resultRelInfo;
 
-    // setup scan keys to get all edges for the given graph oid
+    /* setup scan keys to get all edges for the given graph oid */
     ScanKeyInit(&scan_keys[1], Anum_ag_label_graph, BTEqualStrategyNumber,
                 F_OIDEQ, ObjectIdGetDatum(graph_oid));
     ScanKeyInit(&scan_keys[0], Anum_ag_label_kind, BTEqualStrategyNumber,
                 F_CHAREQ, CharGetDatum(LABEL_TYPE_EDGE));
 
-    // setup the table to be scanned
+    /* setup the table to be scanned */
     ag_label = table_open(ag_label_relation_id(), RowExclusiveLock);
     scan_desc = table_beginscan(ag_label, estate->es_snapshot, 2, scan_keys);
 
@@ -294,7 +299,7 @@ List *get_all_edge_labels_per_graph(EState *estate, Oid graph_oid)
         estate, RelationGetDescr(resultRelInfo->ri_RelationDesc),
         &TTSOpsHeapTuple);
 
-    // scan through the results and get all the label names.
+    /* scan through the results and get all the label names. */
     while(true)
     {
         Name label;
@@ -303,7 +308,7 @@ List *get_all_edge_labels_per_graph(EState *estate, Oid graph_oid)
 
         tuple = heap_getnext(scan_desc, ForwardScanDirection);
 
-        // no more labels to process
+        /* no more labels to process */
         if (!HeapTupleIsValid(tuple))
             break;
 

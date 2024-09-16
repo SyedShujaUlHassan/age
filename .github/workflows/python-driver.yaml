@@ -16,12 +16,10 @@ jobs:
         working-directory: drivers/python
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Run apache/age docker image
-      run: |
-        export TAG=latest
-        docker-compose up -d
+      run: docker compose up -d
 
     - name: Set up python
       uses: actions/setup-python@v4
@@ -40,4 +38,5 @@ jobs:
     - name: Test
       run: |
         python test_age_py.py -db "postgres" -u "postgres" -pass "agens"
+        python test_networkx.py -db "postgres" -u "postgres" -pass "agens"
         python -m unittest -v test_agtypes.py

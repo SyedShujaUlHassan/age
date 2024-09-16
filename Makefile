@@ -88,6 +88,7 @@ DATA_built = $(age_sql)
 REGRESS = scan \
           graphid \
           agtype \
+          agtype_hash_cmp \
           catalog \
           cypher \
           expr \
@@ -102,7 +103,7 @@ REGRESS = scan \
           cypher_union \
           cypher_call \
           cypher_merge \
-	  cypher_subquery \
+          cypher_subquery \
           age_global_graph \
           age_load \
           index \
@@ -111,7 +112,13 @@ REGRESS = scan \
           name_validation \
           jsonb_operators \
           list_comprehension \
-          drop
+          map_projection
+
+ifneq ($(EXTRA_TESTS),)
+  REGRESS += $(EXTRA_TESTS)
+endif
+
+REGRESS += drop
 
 srcdir=`pwd`
 
